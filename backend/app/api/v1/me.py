@@ -16,7 +16,8 @@ from app.schemas.resume import (
     VisibilityUpdate,
 )
 from app.schemas.favorite import FavoriteListResponse
-from app.services import application_service, favorite_service, notification_service, resume_service
+from app.schemas.scout import ScoutListResponse, ScoutRead, ScoutRespondRequest
+from app.services import application_service, favorite_service, notification_service, resume_service, scout_service
 
 router = APIRouter(prefix="/me", tags=["me"])
 
@@ -154,9 +155,34 @@ async def toggle_favorite(
     return await favorite_service.toggle_favorite(db, user, str(job_post_id))
 
 
-# --- Other placeholders ---
+# --- Scouts ---
 
 
-@router.get("/scouts")
-async def list_received_scouts(user: User = Depends(get_current_user)):
-    return {"items": [], "message": "수신 스카우트 - 추후 구현 예정"}
+@router.get("/scouts", response_model=ScoutListResponse)
+async def list_received_scouts(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    status: str | None = None,
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+):
+    return await scout_service.list_user_scouts(db, user, status, page, size)
+
+
+@router.get("/scouts/{scout_id}", response_model=ScoutRead)
+async def get_received_scout(
+    scout_id: UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    return await scout_service.get_user_scout_detail(db, user, scout_id)
+
+
+@router.patch("/scouts/{scout_id}/respond", response_model=ScoutRead)
+async def respond_to_scout(
+    scout_id: UUID,
+    data: ScoutRespondRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    return await scout_service.respond_to_scout(db, user, scout_id, data.status)

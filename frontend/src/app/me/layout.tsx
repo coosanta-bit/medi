@@ -9,6 +9,7 @@ import { ROUTES } from "@/lib/constants";
 const meNav = [
   { label: "이력서", href: ROUTES.ME_RESUME },
   { label: "지원 현황", href: ROUTES.ME_APPLICATIONS },
+  { label: "받은 스카우트", href: ROUTES.ME_SCOUTS },
   { label: "스크랩", href: ROUTES.ME_FAVORITES },
   { label: "알림 설정", href: ROUTES.ME_NOTIFICATIONS },
 ];

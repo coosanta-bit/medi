@@ -26,8 +26,9 @@ from app.schemas.job import (
     JobPostUpdate,
 )
 from app.schemas.report import ReportCreate, ReportRead
+from app.schemas.scout import ScoutCreate, ScoutListResponse, ScoutRead, TalentListResponse
 from app.schemas.verification import VerificationRead, VerificationSubmit
-from app.services import application_service, job_service, report_service, verification_service
+from app.services import application_service, job_service, report_service, scout_service, verification_service
 
 router = APIRouter(prefix="/biz", tags=["biz"])
 
@@ -265,17 +266,58 @@ async def add_applicant_note(
     )
 
 
+# --- Talent Search ---
+
+
+@router.get("/talents", response_model=TalentListResponse)
+async def search_talents(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    keyword: str | None = None,
+    desired_job: str | None = None,
+    desired_region: str | None = None,
+    is_experienced: bool | None = None,
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+):
+    return await scout_service.search_talents(
+        db, keyword, desired_job, desired_region, is_experienced, page, size
+    )
+
+
+# --- Scout Management ---
+
+
+@router.get("/scouts", response_model=ScoutListResponse)
+async def list_scouts(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    status: str | None = None,
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+):
+    return await scout_service.list_company_scouts(db, user, status, page, size)
+
+
+@router.post("/scouts", response_model=ScoutRead)
+async def send_scout(
+    data: ScoutCreate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    return await scout_service.send_scout(db, user, data)
+
+
+@router.get("/scouts/{scout_id}", response_model=ScoutRead)
+async def get_scout_detail(
+    scout_id: UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    return await scout_service.get_company_scout_detail(db, user, scout_id)
+
+
 # --- Placeholders ---
-
-
-@router.get("/talents")
-async def search_talents(user: User = Depends(get_current_user)):
-    return {"items": [], "message": "인재 검색 - 추후 구현 예정"}
-
-
-@router.get("/scouts")
-async def list_scouts(user: User = Depends(get_current_user)):
-    return {"items": [], "message": "스카우트 목록 - 추후 구현 예정"}
 
 
 @router.get("/billing")

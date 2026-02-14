@@ -8,6 +8,7 @@ export const ROUTES = {
   ME_RESUME: "/me/resume",
   ME_APPLICATIONS: "/me/applications",
   ME_FAVORITES: "/me/favorites",
+  ME_SCOUTS: "/me/scouts",
   ME_NOTIFICATIONS: "/me/notifications",
   BIZ: "/biz",
   BIZ_VERIFY: "/biz/verify",
@@ -92,6 +93,14 @@ export const APPLICATION_STATUSES = [
   { value: "HIRED", label: "채용" },
   { value: "REJECTED", label: "불합격" },
   { value: "ON_HOLD", label: "보류" },
+] as const;
+
+export const SCOUT_STATUSES = [
+  { value: "SENT", label: "발송" },
+  { value: "VIEWED", label: "열람" },
+  { value: "ACCEPTED", label: "수락" },
+  { value: "REJECTED", label: "거절" },
+  { value: "HOLD", label: "보류" },
 ] as const;
 
 export const VERIFICATION_STATUSES = [
