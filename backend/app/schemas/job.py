@@ -91,3 +91,8 @@ class JobListResponse(BaseModel):
     page: int
     size: int
     total: int
+
+
+class JobSitemapEntry(BaseModel):
+    id: str
+    updated_at: datetime

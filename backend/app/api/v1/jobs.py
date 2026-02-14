@@ -7,10 +7,27 @@ from app.core.deps import get_current_user
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.application import ApplyRequest, ApplicationRead
-from app.schemas.job import JobListResponse, JobPostRead
+from app.core.enums import JobPostStatus
+from app.models.job import JobPost
+from app.schemas.job import JobListResponse, JobPostRead, JobSitemapEntry
 from app.services import application_service, job_service
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
+
+
+@router.get("/sitemap", response_model=list[JobSitemapEntry])
+async def jobs_for_sitemap(db: AsyncSession = Depends(get_db)):
+    from sqlalchemy import select
+
+    result = await db.execute(
+        select(JobPost.id, JobPost.updated_at)
+        .where(JobPost.status == JobPostStatus.PUBLISHED.value)
+        .order_by(JobPost.updated_at.desc())
+        .limit(5000)
+    )
+    return [
+        {"id": str(r.id), "updated_at": r.updated_at} for r in result.all()
+    ]
 
 
 @router.get("", response_model=JobListResponse)

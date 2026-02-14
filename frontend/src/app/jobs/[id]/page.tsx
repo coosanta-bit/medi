@@ -60,12 +60,24 @@ export async function generateMetadata({
   const category = getLabel(JOB_CATEGORIES, job.job_category);
   const salary = formatSalary(job.salary_type, job.salary_min, job.salary_max);
 
+  const description = `${job.company_name || "의료기관"} - ${category} 채용 | ${location} | ${salary}`;
+
   return {
     title: `${job.title} | ${job.company_name || "메디포닥"}`,
-    description: `${job.company_name || "의료기관"} - ${category} 채용 | ${location} | ${salary}`,
+    description,
     openGraph: {
       title: job.title,
-      description: `${job.company_name || "의료기관"} - ${category} 채용`,
+      description,
+      type: "article",
+      url: `/jobs/${id}`,
+    },
+    twitter: {
+      card: "summary",
+      title: job.title,
+      description,
+    },
+    alternates: {
+      canonical: `/jobs/${id}`,
     },
   };
 }
@@ -85,6 +97,7 @@ export default async function JobDetailPage({
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
+      <JobPostingJsonLd job={job} />
       {/* Back button */}
       <Link
         href={ROUTES.JOBS}
@@ -259,6 +272,78 @@ export default async function JobDetailPage({
         </div>
       </div>
     </div>
+  );
+}
+
+function mapEmploymentType(type: string | null): string {
+  const map: Record<string, string> = {
+    FULL_TIME: "FULL_TIME",
+    PART_TIME: "PART_TIME",
+    CONTRACT: "CONTRACTOR",
+    INTERN: "INTERN",
+    OTHER: "OTHER",
+  };
+  return type ? map[type] || "OTHER" : "OTHER";
+}
+
+function JobPostingJsonLd({ job }: { job: JobPostDetail }) {
+  const location = getLabel(REGIONS, job.location_code);
+  const category = getLabel(JOB_CATEGORIES, job.job_category);
+
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    title: job.title,
+    description: job.body || job.title,
+    datePosted: job.published_at,
+    employmentType: mapEmploymentType(job.employment_type),
+    hiringOrganization: {
+      "@type": "Organization",
+      name: job.company_name || "비공개",
+    },
+    jobLocation: {
+      "@type": "Place",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: job.location_detail || location,
+        addressRegion: location,
+        addressCountry: "KR",
+      },
+    },
+    occupationalCategory: category,
+  };
+
+  if (job.close_at) {
+    jsonLd.validThrough = job.close_at;
+  }
+
+  if (
+    job.salary_type &&
+    job.salary_type !== "NEGOTIABLE" &&
+    (job.salary_min || job.salary_max)
+  ) {
+    jsonLd.baseSalary = {
+      "@type": "MonetaryAmount",
+      currency: "KRW",
+      value: {
+        "@type": "QuantitativeValue",
+        ...(job.salary_min && { minValue: job.salary_min }),
+        ...(job.salary_max && { maxValue: job.salary_max }),
+        unitText:
+          job.salary_type === "HOURLY"
+            ? "HOUR"
+            : job.salary_type === "MONTHLY"
+              ? "MONTH"
+              : "YEAR",
+      },
+    };
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
   );
 }
 

@@ -11,6 +11,9 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://medifordoc.com"
+  ),
   title: {
     default: "메디포닥 - 병원/의료기관 전용 구인구직",
     template: "%s | 메디포닥",
@@ -21,6 +24,19 @@ export const metadata: Metadata = {
     title: "메디포닥",
     description: "병원/의료기관 전용 구인구직 플랫폼",
     type: "website",
+    siteName: "메디포닥",
+    locale: "ko_KR",
+    url: "/",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "메디포닥" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "메디포닥 - 병원/의료기관 전용 구인구직",
+    description: "의료기관 전용 채용 플랫폼",
+    images: ["/og-image.png"],
+  },
+  alternates: {
+    canonical: "/",
   },
 };
 

@@ -5,9 +5,13 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.core.config import get_settings
+from app.core.rate_limit import limiter
 from app.db.session import get_db
 from app.main import app
 from app.models.base import Base
+
+# Disable rate limiting in tests
+limiter.enabled = False
 
 settings = get_settings()
 
