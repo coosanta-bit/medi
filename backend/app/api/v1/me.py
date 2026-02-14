@@ -15,7 +15,8 @@ from app.schemas.resume import (
     ResumeUpdate,
     VisibilityUpdate,
 )
-from app.services import application_service, notification_service, resume_service
+from app.schemas.favorite import FavoriteListResponse
+from app.services import application_service, favorite_service, notification_service, resume_service
 
 router = APIRouter(prefix="/me", tags=["me"])
 
@@ -131,12 +132,29 @@ async def mark_all_notifications_read(
     return {"ok": True, "updated": count}
 
 
+# --- Favorites ---
+
+
+@router.get("/favorites", response_model=FavoriteListResponse)
+async def list_favorites(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+):
+    return await favorite_service.list_favorites(db, user, page, size)
+
+
+@router.post("/favorites/{job_post_id}")
+async def toggle_favorite(
+    job_post_id: UUID,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    return await favorite_service.toggle_favorite(db, user, str(job_post_id))
+
+
 # --- Other placeholders ---
-
-
-@router.get("/favorites")
-async def list_favorites(user: User = Depends(get_current_user)):
-    return {"items": [], "message": "스크랩 목록 - 추후 구현 예정"}
 
 
 @router.get("/scouts")

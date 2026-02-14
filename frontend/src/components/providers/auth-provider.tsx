@@ -34,8 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (Date.now() < exp) {
           setUser({
             id: payload.sub,
-            type: "PERSON",
-            email: "",
+            type: payload.user_type || "PERSON",
+            email: payload.email || "",
             role: payload.role,
           });
         } else {

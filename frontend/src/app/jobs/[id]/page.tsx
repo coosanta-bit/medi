@@ -26,6 +26,7 @@ import {
   ROUTES,
 } from "@/lib/constants";
 import { ApplyButton } from "@/components/jobs/apply-button";
+import { ScrapButton } from "@/components/jobs/scrap-button";
 import type { JobPostDetail } from "@/types/job";
 
 const API_BASE =
@@ -218,9 +219,7 @@ export default async function JobDetailPage({
               <ApplyButton jobId={job.id} isOpen={isOpen} />
 
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1" size="sm">
-                  스크랩
-                </Button>
+                <ScrapButton jobId={job.id} />
                 <Button variant="outline" size="sm">
                   <Share2 className="h-4 w-4" />
                 </Button>

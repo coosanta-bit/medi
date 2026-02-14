@@ -17,12 +17,18 @@ export function Header() {
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
 
-  const userNav =
-    user?.type === "COMPANY"
+  const ADMIN_ROLES = ["ADMIN", "CS", "SALES"];
+  const isAdmin = user && ADMIN_ROLES.includes(user.role);
+
+  const userNav: { label: string; href: string }[] = !user
+    ? []
+    : user.type === "COMPANY"
       ? [{ label: "기업 대시보드", href: ROUTES.BIZ }]
-      : user
-        ? [{ label: "마이페이지", href: ROUTES.ME }]
-        : [];
+      : [{ label: "마이페이지", href: ROUTES.ME }];
+
+  if (isAdmin) {
+    userNav.push({ label: "관리자", href: ROUTES.ADMIN });
+  }
 
   const allNav = [...publicNav, ...userNav];
 

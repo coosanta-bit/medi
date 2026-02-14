@@ -60,7 +60,7 @@ async def signup(db: AsyncSession, data: SignupRequest) -> tuple[User, str, str]
         company_user = CompanyUser(company_id=company.id, user_id=user.id, role="OWNER")
         db.add(company_user)
 
-    access = create_access_token(user.id, role.value)
+    access = create_access_token(user.id, role.value, user.type, user.email)
     refresh = create_refresh_token(user.id)
     return user, access, refresh
 
@@ -73,7 +73,7 @@ async def login(db: AsyncSession, data: LoginRequest) -> tuple[User, str, str]:
     if user.status != UserStatus.ACTIVE.value:
         raise HTTPException(status_code=403, detail="비활성 계정입니다")
 
-    access = create_access_token(user.id, user.role)
+    access = create_access_token(user.id, user.role, user.type, user.email)
     refresh = create_refresh_token(user.id)
     return user, access, refresh
 
@@ -92,6 +92,6 @@ async def refresh_tokens(db: AsyncSession, refresh_token: str) -> tuple[str, str
     if not user or user.status != UserStatus.ACTIVE.value:
         raise HTTPException(status_code=401, detail="사용자를 찾을 수 없거나 비활성 상태입니다")
 
-    access = create_access_token(user.id, user.role)
+    access = create_access_token(user.id, user.role, user.type, user.email)
     new_refresh = create_refresh_token(user.id)
     return access, new_refresh

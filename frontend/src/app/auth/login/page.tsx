@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,8 +11,9 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { ApiError } from "@/lib/api";
 import { ROUTES } from "@/lib/constants";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +26,8 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      router.push(ROUTES.HOME);
+      const redirect = searchParams.get("redirect");
+      router.push(redirect || ROUTES.HOME);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -85,5 +87,13 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

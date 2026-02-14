@@ -23,6 +23,8 @@ export default function BizLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isLoading && !user) {
       router.push(`${ROUTES.LOGIN}?redirect=/biz`);
+    } else if (!isLoading && user && user.type !== "COMPANY") {
+      router.push(ROUTES.HOME);
     }
   }, [user, isLoading, router]);
 
@@ -34,7 +36,7 @@ export default function BizLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) return null;
+  if (!user || user.type !== "COMPANY") return null;
 
   return (
     <div className="container mx-auto px-4 py-8">

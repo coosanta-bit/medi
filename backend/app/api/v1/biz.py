@@ -1,10 +1,16 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_current_user
+from app.core.enums import ApplicationStatus, JobPostStatus
 from app.db.session import get_db
+from app.models.application import Application
+from app.models.company import CompanyUser
+from app.models.job import JobPost
+from app.models.payment import Entitlement
 from app.models.user import User
 from app.schemas.application import (
     ApplicationDetailRead,
@@ -27,8 +33,102 @@ router = APIRouter(prefix="/biz", tags=["biz"])
 
 
 @router.get("")
-async def dashboard(user: User = Depends(get_current_user)):
-    return {"message": "기업 대시보드 - 추후 구현 예정"}
+async def dashboard(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    cu_result = await db.execute(
+        select(CompanyUser).where(CompanyUser.user_id == user.id)
+    )
+    cu = cu_result.scalar_one_or_none()
+    if not cu:
+        return {
+            "active_jobs": 0,
+            "total_applicants": 0,
+            "new_applicants": 0,
+            "credit_balance": 0,
+            "recent_applicants": [],
+        }
+
+    company_id = cu.company_id
+
+    active_jobs = (
+        await db.execute(
+            select(func.count())
+            .select_from(JobPost)
+            .where(
+                and_(
+                    JobPost.company_id == company_id,
+                    JobPost.status == JobPostStatus.PUBLISHED.value,
+                )
+            )
+        )
+    ).scalar() or 0
+
+    company_job_ids = select(JobPost.id).where(JobPost.company_id == company_id)
+
+    total_applicants = (
+        await db.execute(
+            select(func.count())
+            .select_from(Application)
+            .where(Application.job_post_id.in_(company_job_ids))
+        )
+    ).scalar() or 0
+
+    new_applicants = (
+        await db.execute(
+            select(func.count())
+            .select_from(Application)
+            .where(
+                and_(
+                    Application.job_post_id.in_(company_job_ids),
+                    Application.status == ApplicationStatus.RECEIVED.value,
+                )
+            )
+        )
+    ).scalar() or 0
+
+    credit_result = await db.execute(
+        select(Entitlement).where(
+            and_(
+                Entitlement.company_id == company_id,
+                Entitlement.type == "CREDIT",
+            )
+        )
+    )
+    credit_ent = credit_result.scalar_one_or_none()
+    credit_balance = credit_ent.balance if credit_ent else 0
+
+    recent_result = await db.execute(
+        select(Application)
+        .where(Application.job_post_id.in_(company_job_ids))
+        .order_by(Application.created_at.desc())
+        .limit(5)
+    )
+    recent_apps = recent_result.scalars().all()
+
+    recent_applicants = []
+    for app in recent_apps:
+        job_result = await db.execute(
+            select(JobPost.title).where(JobPost.id == app.job_post_id)
+        )
+        job_title = job_result.scalar() or ""
+        recent_applicants.append(
+            {
+                "id": str(app.id),
+                "job_title": job_title,
+                "status": app.status,
+                "created_at": app.created_at.isoformat() if app.created_at else None,
+            }
+        )
+
+    return {
+        "active_jobs": active_jobs,
+        "total_applicants": total_applicants,
+        "new_applicants": new_applicants,
+        "credit_balance": credit_balance,
+        "recent_applicants": recent_applicants,
+    }
 
 
 # --- Verification ---
