@@ -128,10 +128,10 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative py-8 md:py-14">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start rounded-3xl border border-border bg-gradient-to-br from-white to-amber-50/40 shadow-lg p-6 md:p-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start rounded-3xl border border-border bg-gradient-to-br from-white to-[#f3f8ff] shadow-lg p-6 md:p-10">
             {/* Hero copy */}
             <div>
-              <span className="inline-flex items-center rounded-full bg-accent/15 border border-accent/30 px-3 py-1 text-xs font-bold text-accent-foreground">
+              <span className="inline-flex items-center rounded-full bg-[rgba(27,108,194,0.1)] border border-[rgba(27,108,194,0.25)] px-3 py-1 text-xs font-bold text-[#0f5e8c]">
                 병원·의료진 매칭 전문 플랫폼
               </span>
               <h1 className="mt-4 text-2xl md:text-4xl font-extrabold leading-tight tracking-tight">
@@ -158,7 +158,7 @@ export default function HomePage() {
             {/* Search card */}
             <form
               onSubmit={handleSearch}
-              className="rounded-2xl border border-border bg-gradient-to-b from-amber-50/60 to-orange-50/40 p-5 space-y-3"
+              className="rounded-2xl border border-border bg-gradient-to-b from-[#f8fbff] to-[#eef5ff] p-5 space-y-3"
             >
               <div>
                 <label className="block text-xs text-muted-foreground mb-1">
@@ -228,7 +228,7 @@ export default function HomePage() {
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-xl border border-border bg-gradient-to-b from-amber-50/60 to-orange-50/30 p-4"
+                className="rounded-xl border border-border bg-gradient-to-b from-[#f8fbff] to-[#eef5ff] p-4"
               >
                 <p className="text-sm text-muted-foreground">{stat.label}</p>
                 <p className="mt-1 text-xl md:text-2xl font-extrabold">
@@ -279,7 +279,7 @@ export default function HomePage() {
                   href={ROUTES.JOB_DETAIL(job.id)}
                   className="block"
                 >
-                  <div className="rounded-xl border border-border bg-gradient-to-b from-amber-50/60 to-orange-50/30 p-4 hover:shadow-md transition-shadow">
+                  <div className="rounded-xl border border-border bg-gradient-to-b from-[#f8fbff] to-[#eef5ff] p-4 hover:shadow-md transition-shadow">
                     <h3 className="font-semibold truncate">{job.title}</h3>
                     <p className="text-sm text-muted-foreground mt-1">
                       {job.company_name} · {getLabel(REGIONS, job.location_code)}
@@ -334,7 +334,7 @@ export default function HomePage() {
             {FEATURES.map((feat) => (
               <div
                 key={feat.title}
-                className="rounded-xl border border-border bg-gradient-to-b from-amber-50/60 to-orange-50/30 p-5"
+                className="rounded-xl border border-border bg-gradient-to-b from-[#f8fbff] to-[#eef5ff] p-5"
               >
                 <feat.icon className="h-8 w-8 text-primary mb-3" />
                 <h3 className="font-bold">{feat.title}</h3>
@@ -357,7 +357,7 @@ export default function HomePage() {
             {STEPS.map((step, i) => (
               <div
                 key={i}
-                className="rounded-xl border border-border bg-gradient-to-b from-amber-50/60 to-orange-50/30 p-4"
+                className="rounded-xl border border-border bg-gradient-to-b from-[#f8fbff] to-[#eef5ff] p-4"
               >
                 <span className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-border bg-white/70 text-sm font-bold mb-2">
                   {i + 1}
@@ -372,7 +372,7 @@ export default function HomePage() {
       {/* CTA Band */}
       <section className="relative mt-12">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-border bg-gradient-to-b from-amber-50/60 to-orange-50/30 p-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-border bg-gradient-to-b from-[#f8fbff] to-[#eef5ff] p-6">
             <div>
               <h2 className="text-lg md:text-xl font-bold">
                 병원 전용 또는 구직 전용 기능이 필요하신가요?
@@ -392,7 +392,7 @@ export default function HomePage() {
       {/* FAQ */}
       <section className="relative mt-12 pb-12">
         <div className="container mx-auto px-4">
-          <div className="rounded-xl border border-border bg-gradient-to-b from-amber-50/60 to-orange-50/30 p-5 md:p-6">
+          <div className="rounded-xl border border-border bg-gradient-to-b from-[#f8fbff] to-[#eef5ff] p-5 md:p-6">
             <h2 className="text-xl font-bold mb-3">자주 묻는 질문</h2>
             <Accordion type="single" collapsible>
               {FAQS.map((faq, i) => (
